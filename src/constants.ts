@@ -14,14 +14,14 @@ export const TYPES = {
 };
 
 export const SHIP_TYPES = {
-  SINGLE_DECK: 'single-deck',
-  TWO_DECK: 'two-deck',
-  THREE_DECK: 'three-deck',
-  FOUR_DECK: 'four-deck',
+  SMALL: 'small',
+  MEDIUM: 'medium',
+  LARGE: 'large',
+  HUGE: 'huge',
 };
 
 export const ACTION_TYPES = {
   KILLED: 'killed',
-  HIT: 'hit',
-  MISSED: 'missed',
+  SHOT: 'shot',
+  MISS: 'miss',
 };
