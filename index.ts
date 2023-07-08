@@ -1,4 +1,6 @@
-import { httpServer } from './src/http_server/index.ts';
+import 'dotenv/config';
+
+import { httpServer } from './src/http_server';
 
 const HTTP_PORT = process.env.HTTP_PORT || 8181;
 
