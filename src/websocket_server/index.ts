@@ -1,16 +1,24 @@
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from 'ws';
 import 'dotenv/config';
 
-const PORT = process.env.HTTP_PORT || 8181;
+import { handler } from '../index';
+
+import { WS_PLAYERS } from '../store';
+
+const PORT = process.env.WEB_SOCKET_PORT || 8181;
+let amountOfId: number = 0;
 
 export const wss = new WebSocketServer({ port: PORT });
 
-wss.on('connection', (ws) => {
-  ws.on('message', (data) => {
-    console.log(data);
+wss.on('connection', (webSocket: WebSocket) => {
+  const idPlayer = amountOfId++;
+  WS_PLAYERS.set(webSocket, idPlayer);
+
+  webSocket.on('message', async (data: Buffer) => {
+    await handler(webSocket, data);
   });
 
-  ws.on('error', (e) => {
+  webSocket.on('error', (e) => {
     console.log(e);
   });
 });
