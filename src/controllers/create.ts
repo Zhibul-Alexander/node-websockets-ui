@@ -1,38 +1,61 @@
-import { WebSocket, RawData } from 'ws';
+import { WebSocketServer, RawData } from 'ws';
 
-import { TYPES } from '../constants';
+import { CreateData } from './createData';
+import { WebSocketPlayerInfo } from '../types';
+import { TYPES, DATA_FIELDS } from '../constants';
 
-export class Create {
-  public ws: WebSocket;
+export class CreateHandler {
+  public wsClient: WebSocketPlayerInfo;
+  public wsServer: WebSocketServer;
+  private dataHandlers: CreateData;
 
-  public connection = (ws: WebSocket): void => {
-    this.ws = ws;
+  constructor(wsServer: WebSocketServer) {
+    this.wsServer = wsServer;
+  }
 
-    ws.on('message', this.message);
+  public connection = (wsClient: WebSocketPlayerInfo): void => {
+    this.wsClient = wsClient;
+    this.dataHandlers = new CreateData(this.wsClient);
 
-    ws.on('error', (err) => {
+    wsClient.on('message', this.message);
+
+    wsClient.on('error', (err) => {
       console.log(err);
     });
 
-    ws.send('Websocket server ready');
+    wsClient.on('close', this.disconnect);
+
+    wsClient.send('Websocket server ready');
   };
 
   private message = (data: RawData): void => {
     const parsedData = JSON.parse(data.toString());
 
-    const newData = JSON.stringify({
-      name: parsedData.name,
-      index: 0,
-      error: false,
-      errorText: '',
-    });
+    const isValidData = this.validWebSocketData(data);
 
-    const messageData = {
-      type: TYPES.REG,
-      data: newData,
-      id: 0,
-    };
+    if (isValidData) {
+      const webSocketDataResponse = this.dataHandlers.webSocketDataHandler(data);
 
-    this.ws.send(JSON.stringify(messageData));
+      console.log('first', this.wsClient);
+      this.wsClient.send(webSocketDataResponse);
+    }
+  };
+
+  private disconnect = (): void => {
+    console.log('WebSocket client disconnect');
+  };
+
+  private validWebSocketData = (wsClientData: unknown): boolean => {
+    const templateDataFields = Object.values(DATA_FIELDS);
+
+    if (wsClientData && typeof wsClientData === 'object') {
+      const keys = Object.keys(wsClientData);
+      if (templateDataFields.length === keys.length) {
+        return templateDataFields.every((templateDataField) => templateDataField in wsClientData);
+      }
+
+      return false;
+    }
+    return false;
   };
 }
