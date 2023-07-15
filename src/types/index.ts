@@ -188,7 +188,7 @@ export interface WebSocketPayload<T> {
 }
 
 export interface Game {
-  gameId: number,
+  idGame: number,
   state: GAME_TYPES,
   players: Player[],
 }

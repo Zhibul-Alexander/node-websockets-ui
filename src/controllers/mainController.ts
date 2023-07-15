@@ -1,16 +1,16 @@
 import { WebSocketServer } from 'ws';
 
-import { Create } from './create';
+import { CreateGame } from './createGame';
 
 export class MainController {
   public wss: WebSocketServer;
 
-  protected handlers: Create;
+  protected handlers: CreateGame;
 
   constructor(public port: number) {
     this.port = port;
     this.wss = new WebSocketServer({ port });
-    this.handlers = new Create(this.wss);
+    this.handlers = new CreateGame(this.wss);
     this.createListener();
   }
 
