@@ -15,7 +15,7 @@ export const TYPES = {
 
 export const SHIP_TYPES = 'small' | 'medium' | 'large' | 'huge';
 
-export const GAME_TYPES = 'in progress' | 'waiting' | 'finished';
+export const GAME_TYPES = 'waiting' | 'in-progress' | 'finished';
 
 export const ACTION_TYPES = {
   KILLED: 'killed',
