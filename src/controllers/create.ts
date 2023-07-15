@@ -4,7 +4,7 @@ import { CreateData } from './createData';
 import { WebSocketPlayerInfo } from '../types';
 import { TYPES, DATA_FIELDS } from '../constants';
 
-export class CreateHandler {
+export class Create {
   public wsClient: WebSocketPlayerInfo;
   public wsServer: WebSocketServer;
   private dataHandlers: CreateData;
@@ -31,10 +31,10 @@ export class CreateHandler {
   private message = (data: RawData): void => {
     const parsedData = JSON.parse(data.toString());
 
-    const isValidData = this.validWebSocketData(data);
+    const isValidData = this.validWebSocketData(parsedData);
 
     if (isValidData) {
-      const webSocketDataResponse = this.dataHandlers.webSocketDataHandler(data);
+      const webSocketDataResponse = this.dataHandlers.webSocketDataHandler(parsedData);
 
       console.log('first', this.wsClient);
       this.wsClient.send(webSocketDataResponse);

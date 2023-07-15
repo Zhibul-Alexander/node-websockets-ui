@@ -1,23 +1,16 @@
 import { WebSocketServer } from 'ws';
+import 'dotenv/config';
 
-import { Create } from '../controllers/create';
+const PORT = process.env.HTTP_PORT || 8181;
 
-export class CreateWebSocketServer {
-  public wss: WebSocketServer;
+export const wss = new WebSocketServer({ port: PORT });
 
-  protected controllers: Create;
+wss.on('connection', (ws) => {
+  ws.on('message', (data) => {
+    console.log(data);
+  });
 
-  constructor(public port: number) {
-    this.port = port;
-
-    this.wss = new WebSocketServer({ port });
-
-    this.controllers = new Create();
-
-    this.createListener();
-  }
-
-  private createListener = (): void => {
-    this.wss.on('connection', this.controllers.connection);
-  }
-}
+  ws.on('error', (e) => {
+    console.log(e);
+  });
+});

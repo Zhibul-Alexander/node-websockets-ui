@@ -2,12 +2,11 @@
   "name": "ws_task",
   "version": "1.0.0",
   "description": "Template for the WebSocket remote control task",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
-    "build": "webpack",
-    "start": "ts-node ./index.ts",
-    "start:dev": "nodemon ./index.ts",
-    "start:prod": "npm run build && ts-node dist"
+    "build": "npx tsc",
+    "start:dev": "npx nodemon",
+    "start:prod": "npx tsc && node build/app"
   },
   "author": "Alexander Zhibul",
   "keywords": [],

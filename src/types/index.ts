@@ -1,34 +1,36 @@
-import { TYPES } from '../constants';
+import WebSocket from 'ws';
+
+import { TYPES, SHIP_TYPES, GAME_TYPES } from '../constants';
 
 export interface RegistrationRequest {
-  type: typeof TYPES.REG;
+  type: typeof TYPES.REG,
   data: {
-    name: string;
-    password: string;
-  };
-  id: number;
+    name: string,
+    password: string,
+  },
+  id: number,
 }
 
 export interface RegistrationResponse {
-  type: typeof TYPES.REG;
+  type: typeof TYPES.REG,
   data: {
-    name: string;
-    index: number;
-    error: boolean;
-    errorText: string;
-  };
-  id: number;
+    name: string,
+    index: number,
+    error: boolean,
+    errorText: string,
+  },
+  id: number,
 }
 
 export interface UpdateWinners {
-  type: typeof TYPES.UPDATE_WINNERS;
+  type: typeof TYPES.UPDATE_WINNERS,
   data: [
     {
-      name: string;
-      password: string;
+      name: string,
+      password: string,
     },
-  ];
-  id: number;
+  ],
+  id: number,
 }
 
 export interface CreateRoom {
@@ -39,11 +41,16 @@ export interface CreateRoom {
   id: number;
 }
 
-export interface CreateGame {
-  type: typeof TYPES.CREATE_GAME;
+export interface CreateNewRoom {
+  type: typeof TYPES.CREATE_ROOM;
+  data: string,
+  id: number;
+}
+
+export interface AddUserToRoom {
+  type: typeof TYPES.ADD_USER_TO_ROOM;
   data: {
-    idGame: number,
-    idPlayer: number,
+    indexRoom: number;
   };
   id: number;
 }
@@ -61,26 +68,6 @@ export interface UpdateRoom {
       ]
     },
   ];
-  id: number;
-}
-
-export interface AddShips {
-  type: typeof TYPES.ADD_SHIPS;
-  data: {
-    gameId: number,
-    ships: [
-      {
-        position: {
-          x: number,
-          y: number,
-        },
-        direction: boolean,
-        length: number,
-        type: 'small' | 'medium' | 'large' | 'huge',
-      }
-    ],
-    indexPlayer: number
-  };
   id: number;
 }
 
@@ -137,4 +124,92 @@ export interface Finish {
     winPlayer: number,
   };
   id: number;
+}
+
+export interface WebSocketPlayerInfo extends WebSocket {
+  playerInfo: {
+    name: string;
+    password: string;
+    index: string;
+  };
+}
+
+export type DataRequest =
+  | RegistrationRequest['data']
+  | CreateNewRoom['data']
+  | AddUserToRoom['data']
+  | AddShips['data']
+  | Attack['data']
+  | RandomAttack['data'];
+
+export interface User {
+  name: string,
+  password: string,
+}
+
+export interface Ship {
+  position: {
+    x: number,
+    y: number,
+  },
+  direction: boolean,
+  length: number,
+  type: SHIP_TYPES,
+}
+
+export interface Player {
+  idPlayer: number,
+  isWinner: boolean,
+  ships: Ship[],
+}
+
+export interface RoomUser {
+  name: string,
+  index: number,
+}
+
+export interface UserResponse extends User {
+  error: boolean,
+  errorText: string,
+}
+
+export interface UserWithId extends User {
+  id: number,
+}
+
+export interface WebSocketWithId extends WebSocket {
+  id: number,
+}
+
+export interface WebSocketPayload<T> {
+  type: TYPES;
+  data: T;
+  id: number;
+}
+
+export interface Game {
+  gameId: number,
+  state: GAME_TYPES,
+  players: Player[],
+}
+
+export interface CreateGame {
+  idGame: number,
+  idPlayer: number,
+}
+
+export interface StartGameDtoModel {
+  ships: Ship[],
+  currentPlayerIndex: number,
+}
+
+export interface Room {
+  roomId: number,
+  roomUsers: RoomUser[],
+}
+
+export interface AddShips {
+  gameId: number,
+  ships: Ship[],
+  indexPlayer: number,
 }
