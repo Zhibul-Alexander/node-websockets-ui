@@ -1,25 +1,79 @@
-import { WebSocketServer } from 'ws';
+import WebSocket from 'ws';
 
-import { CreateGame } from './createGame';
+import { WS_PLAYERS, USERS, ROOMS, GAMES } from '../store';
+import { WebSocketPayload, User, UserResponse, UserWithId, Room, Game, Player, AddShips } from '../types';
+import { TYPES } from '../constants';
 
 export class MainController {
-  public wss: WebSocketServer;
+  public async registerUser(webSocket: WebSocket, dataMessage: WebSocketPayload<User>): Promise<WebSocketPayload<UserResponse>> {
+    const { type, data, id } = dataMessage;
 
-  protected handlers: CreateGame;
+    const userId = WS_PLAYERS.get(webSocket)!;
+    const responseData = { error: false, errorText: '' };
+    const isUserExists = USERS.find((user: UserWithId) => user.name === data.name && user.password === data.password);
 
-  constructor(public port: number) {
-    this.port = port;
-    this.wss = new WebSocketServer({ port });
-    this.handlers = new CreateGame(this.wss);
-    this.createListener();
+    if (!isUserExists) {
+      USERS.push({ ...data, id: userId });
+    }
+
+    return { type, data: { ...data, ...responseData }, id };
   }
 
-  private createListener(): void {
-    this.wss.on('connection', this.handlers.connection);
-    this.wss.on('close', this.serverClose);
+  public async createRoom(webSocket: WebSocket, dataMessage: WebSocketPayload<string>): Promise<WebSocketPayload<Room[]>> {
+    const { id } = dataMessage;
+
+    const userId = WS_PLAYERS.get(webSocket)!;
+    const user = USERS.find((user: UserWithId) => user.id === userId);
+
+    if (user) {
+      const room: Room = { roomId: userId, roomUsers: [{ name: user.name, index: userId }] };
+      ROOMS.push(room);
+
+      const filteredRooms = ROOMS.filter((room) => room.roomUsers.length < 2);
+
+      return { type: TYPES.UPDATE_ROOM, data: filteredRooms, id };
+    }
   }
 
-  public serverClose = (): void => {
-    console.log('server closed');
-  };
+  public async addUserToRoom(webSocket: WebSocket, dataMessage: WebSocketPayload<{ indexRoom: number }>): Promise<number> {
+    const userId = WS_PLAYERS.get(webSocket)!;
+
+    const newGame: Game = {
+      idGame: GAMES.length,
+      state: 'waiting',
+      players: [
+        {
+          idPlayer: userId,
+          isWinner: false,
+          ships: [],
+        },
+        {
+          idPlayer: USERS.filter((user: UserWithId) => user.id !== userId)[0].id,
+          isWinner: false,
+          ships: [],
+        },
+      ],
+    };
+    GAMES.push(newGame);
+
+    const room = ROOMS.findIndex((room: Room) => room.roomId === dataMessage.data.indexRoom);
+    ROOMS.splice(room, 1);
+
+    return newGame.idGame;
+  }
+
+  public async addShips(webSocket: WebSocket, dataMessage: WebSocketPayload<AddShips>): Promise<void> {
+    const { data } = dataMessage;
+
+    const userId = WS_PLAYERS.get(webSocket)!;
+    const game = GAMES.find((game: Game) => game.idGame === data.gameId);
+
+    if (game) {
+      const player = game.players.find((player: Player) => player.idPlayer === userId);
+
+      if (player) {
+        player.ships = data.ships;
+      }
+    }
+  }
 }
