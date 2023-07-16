@@ -24,12 +24,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "strictPropertyInitialization": false,
-    "sourceMap": true,
+    "sourceMap": true
   },
   "include": [
-    "src/**/*",
+    "src/**/*"
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "ts-node": {
+    "esm": true
+  }
 }

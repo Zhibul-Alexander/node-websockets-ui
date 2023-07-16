@@ -1,8 +1,8 @@
 import WebSocket from 'ws';
 
-import { WS_PLAYERS, GAMES } from '../store';
-import { Player } from '../types';
-import { TYPES } from '../constants';
+import { WS_PLAYERS, GAMES } from '../store/index.js';
+import { Player } from '../types/index.js';
+import { TYPES } from '../constants.js';
 
 export const createGame = (idGame: number) => {
   WS_PLAYERS.forEach((idPlayer: number, webSocket: WebSocket) => {

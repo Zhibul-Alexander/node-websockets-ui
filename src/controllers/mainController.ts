@@ -1,8 +1,8 @@
 import WebSocket from 'ws';
 
-import { WS_PLAYERS, USERS, ROOMS, GAMES } from '../store';
-import { WebSocketPayload, User, UserResponse, UserWithId, Room, Game, Player, AddShips } from '../types';
-import { TYPES } from '../constants';
+import { WS_PLAYERS, USERS, ROOMS, GAMES } from '../store/index.js';
+import { WebSocketPayload, User, UserResponse, UserWithId, Room, Game, Player, AddShips } from '../types/index.js';
+import { TYPES } from '../constants.js';
 
 export class MainController {
   public async registerUser(webSocket: WebSocket, dataMessage: WebSocketPayload<User>): Promise<WebSocketPayload<UserResponse>> {
@@ -32,6 +32,8 @@ export class MainController {
       const filteredRooms = ROOMS.filter((room) => room.roomUsers.length < 2);
 
       return { type: TYPES.UPDATE_ROOM, data: filteredRooms, id };
+    } else {
+      throw new Error('User not found');
     }
   }
 
@@ -47,17 +49,28 @@ export class MainController {
           isWinner: false,
           ships: [],
         },
-        {
-          idPlayer: USERS.filter((user: UserWithId) => user.id !== userId)[0].id,
-          isWinner: false,
-          ships: [],
-        },
       ],
     };
+
+    const otherUsers = USERS.filter((user: UserWithId) => user.id !== userId);
+    if (otherUsers.length > 0) {
+      const firstOtherUser = otherUsers[0];
+      if (firstOtherUser !== undefined) {
+        newGame.players.push({
+          idPlayer: firstOtherUser.id,
+          isWinner: false,
+          ships: [],
+        });
+      }
+    }
+
     GAMES.push(newGame);
 
-    const room = ROOMS.findIndex((room: Room) => room.roomId === dataMessage.data.indexRoom);
-    ROOMS.splice(room, 1);
+    const roomIndex = ROOMS.findIndex((room: Room) => room.roomId === dataMessage.data.indexRoom);
+
+    if (roomIndex !== -1) {
+      ROOMS.splice(roomIndex, 1);
+    }
 
     return newGame.idGame;
   }

@@ -1,8 +1,8 @@
 import WebSocket from 'ws';
 
-import { GAMES, WS_PLAYERS } from '../store';
-import { Game, Player } from '../types';
-import { TYPES } from '../constants';
+import { GAMES, WS_PLAYERS } from '../store/index.js';
+import { Game, Player } from '../types/index.js';
+import { TYPES } from '../constants.js';
 
 export const startGame = () => {
   const game = GAMES.find((game: Game) => game.state === 'waiting');

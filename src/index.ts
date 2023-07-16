@@ -1,14 +1,14 @@
 import WebSocket from 'ws';
 
-import { MainController } from './controllers/mainController';
-import { updateRoom } from './controllers/updateRoom';
-import { createGame } from './controllers/createGame';
-import { startGame } from './controllers/startGame';
+import { MainController } from './controllers/mainController.js';
+import { updateRoom } from './controllers/updateRoom.js';
+import { createGame } from './controllers/createGame.js';
+import { startGame } from './controllers/startGame.js';
 
-import { transformResponseToJSON } from './utils';
+import { transformResponseToJSON } from './utils/index.js';
 
-import { WebSocketPayload, User, AddShips } from './types';
-import { TYPES } from './constants';
+import { WebSocketPayload, User, AddShips } from './types/index.js';
+import { TYPES } from './constants.js';
 
 const mainController = new MainController();
 

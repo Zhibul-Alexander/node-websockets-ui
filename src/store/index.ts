@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 
-import { Game, Room, UserWithId } from '../types';
+import { Game, Room, UserWithId } from '../types/index.js';
 
 export const GAME_RESULTS = [];
 

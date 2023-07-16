@@ -1,12 +1,10 @@
 import 'dotenv/config';
 
-import { httpServer } from './src/http_server';
-import { MainController } from './src/websocket_server';
+import { httpServer } from './src/http_server/index.js';
+import './src/websocket_server/index.js';
 
-const HTTP_PORT: number = Number(process.env.HTTP_PORT) || 8181;
-const WEB_SOCKET_PORT: number = Number(process.env.WEB_SOCKET_PORT) || 4000;
+const HTTP_PORT = Number(process.env.HTTP_PORT) || 8181;
 
 httpServer.listen(HTTP_PORT);
-new MainController(WEB_SOCKET_PORT);
 
-console.log(`Start static http server on the ${HTTP_PORT} port and websocket server on the ${WEB_SOCKET_PORT} port, good luck!`);
+console.log(`Start static http server on the ${HTTP_PORT} port, good luck!`);
