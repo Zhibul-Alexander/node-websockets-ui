@@ -1,7 +1,19 @@
 import WebSocket from 'ws';
 
+import { parseShips } from '../utils/index.js';
+
 import { WS_PLAYERS, USERS, ROOMS, GAMES } from '../store/index.js';
-import { WebSocketPayload, User, UserResponse, UserWithId, Room, Game, Player, AddShips } from '../types/index.js';
+import {
+  WebSocketPayload,
+  User,
+  UserResponse,
+  UserWithId,
+  Room,
+  Game,
+  Player,
+  AddShips,
+  Attack,
+} from '../types/index.js';
 import { TYPES } from '../constants.js';
 
 export class MainController {
@@ -75,7 +87,7 @@ export class MainController {
     return newGame.idGame;
   }
 
-  public async addShips(webSocket: WebSocket, dataMessage: WebSocketPayload<AddShips>): Promise<void> {
+  public async addShips(webSocket: WebSocket, dataMessage: WebSocketPayload<AddShips>): Promise<number> {
     const { data } = dataMessage;
 
     const userId = WS_PLAYERS.get(webSocket)!;
@@ -85,8 +97,14 @@ export class MainController {
       const player = game.players.find((player: Player) => player.idPlayer === userId);
 
       if (player) {
-        player.ships = data.ships;
+        player.ships = parseShips(data.ships);
       }
     }
+
+    return data.gameId;
+  }
+
+  public async attack(webSocket: WebSocket, dataMessage: WebSocketPayload<Attack>): Promise<void> {
+    const { data: { gameId, indexPlayer, x, y }, id } = dataMessage;
   }
 }

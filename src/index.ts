@@ -4,10 +4,11 @@ import { MainController } from './controllers/mainController.js';
 import { updateRoom } from './controllers/updateRoom.js';
 import { createGame } from './controllers/createGame.js';
 import { startGame } from './controllers/startGame.js';
+import { notifyPlayersOfTurn } from './controllers/notifyPlayersOfTurn.js';
 
 import { transformResponseToJSON } from './utils/index.js';
 
-import { WebSocketPayload, User, AddShips } from './types/index.js';
+import { WebSocketPayload, User, AddShips, Attack } from './types/index.js';
 import { TYPES } from './constants.js';
 
 const mainController = new MainController();
@@ -36,8 +37,18 @@ export const handler = async (webSocket: WebSocket, dataMessage: Buffer) => {
         createGame(result);
         break;
       case TYPES.ADD_SHIPS:
-        await mainController.addShips(webSocket, parsedDataMessage as WebSocketPayload<AddShips>);
-        startGame();
+        const idGame = await mainController.addShips(webSocket, parsedDataMessage as WebSocketPayload<AddShips>);
+
+        if (idGame) {
+          const isStarted = await startGame(idGame);
+
+          if (isStarted) {
+            await notifyPlayersOfTurn(idGame);
+          }
+        }
+        break;
+      case TYPES.ATTACK:
+        await mainController.attack(webSocket, parsedDataMessage as WebSocketPayload<Attack>);
         break;
       default:
         console.log('Unknown message type');

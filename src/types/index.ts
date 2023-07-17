@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 
-import { TYPES, SHIP_TYPES, GAME_TYPES } from '../constants.js';
+import { TYPES, SHIP_TYPES, GAME_TYPES, SHIP_ACTION_TYPES } from '../constants.js';
 
 export interface User {
   name: string,
@@ -17,10 +17,19 @@ export interface Ship {
   type: SHIP_TYPES,
 }
 
+export interface ShipCell {
+  positions: {
+    x: number,
+    y: number,
+  }[],
+  type: SHIP_TYPES,
+}
+
+
 export interface Player {
   idPlayer: number,
   isWinner: boolean,
-  ships: Ship[],
+  ships: ShipCell[],
 }
 
 export interface RoomUser {
@@ -72,4 +81,34 @@ export interface AddShips {
   gameId: number,
   ships: Ship[],
   indexPlayer: number,
+}
+
+export interface Attack {
+  gameId: number,
+  indexPlayer: number,
+  x: number,
+  y: number,
+}
+
+export interface RandomAttack {
+  gameId: number,
+  indexPlayer: number,
+}
+
+export interface AttackAnswer {
+  position: {
+    x: number,
+    y: number,
+  },
+  currentPlayer: number,
+  status: SHIP_ACTION_TYPES,
+}
+
+export interface WinnerGame {
+  name: string,
+  win: number,
+}
+
+export interface FinishGame {
+  winPlayer: number;
 }

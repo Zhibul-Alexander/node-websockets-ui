@@ -17,8 +17,8 @@ export type SHIP_TYPES = 'small' | 'medium' | 'large' | 'huge';
 
 export type GAME_TYPES = 'waiting' | 'in-progress' | 'finished';
 
-export const ACTION_TYPES = {
-  KILLED: 'killed',
-  SHOT: 'shot',
-  MISS: 'miss',
-};
+export enum SHIP_ACTION_TYPES {
+  KILLED = 'killed',
+  SHOT = 'shot',
+  MISS = 'miss',
+}
