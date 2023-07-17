@@ -7,7 +7,7 @@ export const startGame = async (idGame: number): Promise<boolean> => {
 
   const everyPlayerWithShip = game?.players.every((player) => player.ships.length > 0);
 
-  if (everyPlayerWithShip) {
+  if (game && everyPlayerWithShip) {
     game.state = 'in-progress';
 
     game.players.forEach((player: Player) => {

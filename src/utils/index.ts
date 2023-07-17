@@ -41,16 +41,21 @@ export const updateWinners = (winnerId: number) => {
 
 export const findEnemyIdPlayer = (gameId: number, currentPlayerIndex: number) => {
   const game = GAMES.find((game) => game.idGame === gameId);
+  if (!game) {
+    return;
+  }
 
   const enemyPlayer = game.players.find((player) => player.idPlayer !== currentPlayerIndex);
 
-  return enemyPlayer.idPlayer;
+  if (enemyPlayer) {
+    return enemyPlayer.idPlayer;
+  }
 };
 
 export const checkWinner = (gameId: number) => {
   const game = GAMES.find((game) => game.idGame === gameId)!;
 
   const enemyShips = game.players.find((player) => player.idPlayer !== currentPlayerIndex)?.ships!;
-  
+
   return enemyShips!.every((ship) => ship.positions.length === 0);
 };

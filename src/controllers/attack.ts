@@ -30,5 +30,7 @@ export const attack = async (dataMessage: WebSocketPayload<Attack>) => {
 
   const nextTurnPlayerId = result.data.status === SHIP_ACTION_TYPES.MISS ? enemyId : indexPlayer;
 
-  await notifyPlayersOfTurn(gameId, nextTurnPlayerId);
+  if (nextTurnPlayerId) {
+    await notifyPlayersOfTurn(gameId, nextTurnPlayerId);
+  }
 };

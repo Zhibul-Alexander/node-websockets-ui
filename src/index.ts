@@ -15,6 +15,9 @@ export const mainController = new MainController();
 
 export const handler = async (userId: number, dataMessage: Buffer) => {
   const webSocket = WS_PLAYERS.get(userId);
+  if (!webSocket) {
+    return;
+  }
 
   try {
     let result;
@@ -47,7 +50,9 @@ export const handler = async (userId: number, dataMessage: Buffer) => {
           if (isStarted) {
             const enemyIdPlayer = findEnemyIdPlayer(idGame, parsedDataMessage.data.indexPlayer);
 
-            await notifyPlayersOfTurn(idGame, enemyIdPlayer);
+            if (enemyIdPlayer) {
+              await notifyPlayersOfTurn(idGame, enemyIdPlayer);
+            }
           }
         }
         break;
