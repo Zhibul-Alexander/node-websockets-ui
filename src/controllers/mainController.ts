@@ -1,8 +1,6 @@
-import WebSocket from 'ws';
-
 import { parseShips } from '../utils/index.js';
 
-import { WS_PLAYERS, USERS, ROOMS, GAMES } from '../store/index.js';
+import { USERS, ROOMS, GAMES } from '../store/index.js';
 import {
   WebSocketPayload,
   User,
@@ -13,14 +11,14 @@ import {
   Player,
   AddShips,
   Attack,
+  AttackAnswer,
 } from '../types/index.js';
-import { TYPES } from '../constants.js';
+import { TYPES, SHIP_ACTION_TYPES } from '../constants.js';
 
 export class MainController {
-  public async registerUser(webSocket: WebSocket, dataMessage: WebSocketPayload<User>): Promise<WebSocketPayload<UserResponse>> {
+  public async registerUser(userId: number, dataMessage: WebSocketPayload<User>): Promise<WebSocketPayload<UserResponse>> {
     const { type, data, id } = dataMessage;
 
-    const userId = WS_PLAYERS.get(webSocket)!;
     const responseData = { error: false, errorText: '' };
     const isUserExists = USERS.find((user: UserWithId) => user.name === data.name && user.password === data.password);
 
@@ -31,10 +29,9 @@ export class MainController {
     return { type, data: { ...data, ...responseData }, id };
   }
 
-  public async createRoom(webSocket: WebSocket, dataMessage: WebSocketPayload<string>): Promise<WebSocketPayload<Room[]>> {
+  public async createRoom(userId: number, dataMessage: WebSocketPayload<string>): Promise<WebSocketPayload<Room[]>> {
     const { id } = dataMessage;
 
-    const userId = WS_PLAYERS.get(webSocket)!;
     const user = USERS.find((user: UserWithId) => user.id === userId);
 
     if (user) {
@@ -49,9 +46,7 @@ export class MainController {
     }
   }
 
-  public async addUserToRoom(webSocket: WebSocket, dataMessage: WebSocketPayload<{ indexRoom: number }>): Promise<number> {
-    const userId = WS_PLAYERS.get(webSocket)!;
-
+  public async addUserToRoom(userId: number, dataMessage: WebSocketPayload<{ indexRoom: number }>): Promise<number> {
     const newGame: Game = {
       idGame: GAMES.length,
       state: 'waiting',
@@ -87,10 +82,9 @@ export class MainController {
     return newGame.idGame;
   }
 
-  public async addShips(webSocket: WebSocket, dataMessage: WebSocketPayload<AddShips>): Promise<number> {
+  public async addShips(userId: number, dataMessage: WebSocketPayload<AddShips>): Promise<number> {
     const { data } = dataMessage;
 
-    const userId = WS_PLAYERS.get(webSocket)!;
     const game = GAMES.find((game: Game) => game.idGame === data.gameId);
 
     if (game) {
@@ -104,7 +98,37 @@ export class MainController {
     return data.gameId;
   }
 
-  public async attack(webSocket: WebSocket, dataMessage: WebSocketPayload<Attack>): Promise<void> {
+  public async attack(dataMessage: WebSocketPayload<Attack>): Promise<WebSocketPayload<AttackAnswer>> {
     const { data: { gameId, indexPlayer, x, y }, id } = dataMessage;
+
+    let result = '' as SHIP_ACTION_TYPES;
+
+    const game = GAMES.find((game) => game.idGame === gameId);
+
+    if (game) {
+      const enemyShips = game.players.find((player) => player.idPlayer !== indexPlayer)!.ships;
+
+      const hitShip = enemyShips.find(({ positions }) => positions.some((position) => position.x === x && position.y === y));
+
+      if (hitShip) {
+        const leftShipPositions = hitShip.positions.filter((position) => position.x !== x || position.y !== y);
+        hitShip.positions = leftShipPositions;
+        result = leftShipPositions.length === 0 ? SHIP_ACTION_TYPES.KILLED : SHIP_ACTION_TYPES.SHOT;
+      } else {
+        result = SHIP_ACTION_TYPES.MISS;
+      }
+
+      return {
+        type: TYPES.ATTACK,
+        data: {
+          position: { x, y },
+          currentPlayer: indexPlayer,
+          status: result,
+        },
+        id,
+      };
+    } else {
+      throw new Error('Game not found');
+    }
   }
 }

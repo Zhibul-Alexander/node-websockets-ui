@@ -1,5 +1,3 @@
-import WebSocket from 'ws';
-
 import { GAMES, WS_PLAYERS } from '../store/index.js';
 import { Game, Player } from '../types/index.js';
 import { TYPES } from '../constants.js';
@@ -7,29 +5,23 @@ import { TYPES } from '../constants.js';
 export const startGame = async (idGame: number): Promise<boolean> => {
   const game = GAMES.find((game: Game) => game.idGame === idGame);
 
-  if (game) {
-    const everyPlayerWithShip = game.players.every((player: Player) => player.ships.length > 0);
+  const everyPlayerWithShip = game?.players.every((player) => player.ships.length > 0);
 
-    if (everyPlayerWithShip) {
-      game.state = 'in-progress';
+  if (everyPlayerWithShip) {
+    game.state = 'in-progress';
 
-      WS_PLAYERS.forEach((idPlayer: number, webSocket: WebSocket) => {
-        const hasMatchingPlayer = game.players.some((player: Player) => player.idPlayer === idPlayer);
+    game.players.forEach((player: Player) => {
+      const webSocket = WS_PLAYERS.get(player.idPlayer)!;
 
-        if (hasMatchingPlayer) {
-          const foundPlayer = game.players.find((player: Player) => player.idPlayer === idPlayer);
-          const ships = foundPlayer ? foundPlayer.ships : null;
-
-          const response = JSON.stringify({
-            type: TYPES.START_GAME,
-            data: JSON.stringify({ ships: ships, currentPlayerIndex: idPlayer }),
-            id: 0,
-          });
-          webSocket.send(response);
-        }
+      const response = JSON.stringify({
+        type: TYPES.START_GAME,
+        data: JSON.stringify({ ships: player.ships, currentPlayerIndex: player.idPlayer }),
+        id: 0,
       });
-      return true;
-    }
+
+      webSocket.send(response);
+    });
+    return true;
   } else {
     return false;
   }

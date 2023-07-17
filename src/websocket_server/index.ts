@@ -12,10 +12,10 @@ export const wss = new WebSocketServer({ port: PORT });
 
 wss.on('connection', (webSocket: WebSocket) => {
   const idPlayer = amountOfId++;
-  WS_PLAYERS.set(webSocket, idPlayer);
+  WS_PLAYERS.set(idPlayer, webSocket);
 
   webSocket.on('message', async (data: Buffer) => {
-    await handler(webSocket, data);
+    await handler(idPlayer, data);
   });
 
   webSocket.on('error', (e) => {

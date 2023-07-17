@@ -4,16 +4,20 @@ import { MainController } from './controllers/mainController.js';
 import { updateRoom } from './controllers/updateRoom.js';
 import { createGame } from './controllers/createGame.js';
 import { startGame } from './controllers/startGame.js';
-import { notifyPlayersOfTurn } from './controllers/notifyPlayersOfTurn.js';
+import { notifyPlayersOfTurn, currentPlayerIndex } from './controllers/notifyPlayersOfTurn.js';
+import { attack } from './controllers/attack.js';
 
-import { transformResponseToJSON } from './utils/index.js';
+import { transformResponseToJSON, findEnemyIdPlayer } from './utils/index.js';
 
 import { WebSocketPayload, User, AddShips, Attack } from './types/index.js';
+import { WS_PLAYERS } from './store/index.js';
 import { TYPES } from './constants.js';
 
-const mainController = new MainController();
+export const mainController = new MainController();
 
-export const handler = async (webSocket: WebSocket, dataMessage: Buffer) => {
+export const handler = async (userId: number, dataMessage: Buffer) => {
+  const webSocket = WS_PLAYERS.get(userId);
+
   try {
     let result;
     let parsedDataMessage = JSON.parse(dataMessage.toString());
@@ -25,30 +29,38 @@ export const handler = async (webSocket: WebSocket, dataMessage: Buffer) => {
 
     switch (parsedDataMessage.type) {
       case TYPES.REG:
-        result = await mainController.registerUser(webSocket, parsedDataMessage as WebSocketPayload<User>);
+        result = await mainController.registerUser(userId, parsedDataMessage as WebSocketPayload<User>);
         webSocket.send(transformResponseToJSON(result));
         break;
       case TYPES.CREATE_ROOM:
-        result = await mainController.createRoom(webSocket, parsedDataMessage as WebSocketPayload<string>);
+        result = await mainController.createRoom(userId, parsedDataMessage as WebSocketPayload<string>);
         updateRoom(transformResponseToJSON(result));
         break;
       case TYPES.ADD_USER_TO_ROOM:
-        result = await mainController.addUserToRoom(webSocket, parsedDataMessage as WebSocketPayload<{ indexRoom: number }>);
+        result = await mainController.addUserToRoom(userId, parsedDataMessage as WebSocketPayload<{ indexRoom: number }>);
         createGame(result);
         break;
       case TYPES.ADD_SHIPS:
-        const idGame = await mainController.addShips(webSocket, parsedDataMessage as WebSocketPayload<AddShips>);
+        const idGame = await mainController.addShips(userId, parsedDataMessage as WebSocketPayload<AddShips>);
 
         if (idGame) {
           const isStarted = await startGame(idGame);
 
           if (isStarted) {
-            await notifyPlayersOfTurn(idGame);
+            const enemyIdPlayer = findEnemyIdPlayer(idGame, parsedDataMessage.data.indexPlayer);
+
+            await notifyPlayersOfTurn(idGame, enemyIdPlayer);
           }
         }
         break;
       case TYPES.ATTACK:
-        await mainController.attack(webSocket, parsedDataMessage as WebSocketPayload<Attack>);
+        const { indexPlayer } = parsedDataMessage.data as Attack;
+
+        if (indexPlayer !== currentPlayerIndex) {
+          return;
+        }
+
+        await attack(parsedDataMessage as WebSocketPayload<Attack>);
         break;
       default:
         console.log('Unknown message type');
