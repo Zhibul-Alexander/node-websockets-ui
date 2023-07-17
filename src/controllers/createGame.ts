@@ -1,7 +1,7 @@
 import { WS_PLAYERS, GAMES } from '../store/index.js';
 import { TYPES } from '../constants.js';
 
-export const createGame = async (idGame: number) => {
+export const createGame = (idGame: number) => {
   const game = GAMES.find((game) => game.idGame === idGame && game.players.length === 2);
 
   if (game) {

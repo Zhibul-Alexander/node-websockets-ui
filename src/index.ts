@@ -1,5 +1,3 @@
-import WebSocket from 'ws';
-
 import { MainController } from './controllers/mainController.js';
 import { updateRoom } from './controllers/updateRoom.js';
 import { createGame } from './controllers/createGame.js';
@@ -61,6 +59,10 @@ export const handler = async (userId: number, dataMessage: Buffer) => {
         }
 
         await attack(parsedDataMessage as WebSocketPayload<Attack>);
+        break;
+      case TYPES.RANDOM_ATTACK:
+        const randomAttack = { ...parsedDataMessage.data, x: Math.random() * 10, y: Math.random() * 10 };
+        await attack({ ...parsedDataMessage, data: { ...randomAttack } });
         break;
       default:
         console.log('Unknown message type');
