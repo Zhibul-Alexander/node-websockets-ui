@@ -44,15 +44,13 @@ export const handler = async (userId: number, dataMessage: Buffer) => {
       case TYPES.ADD_SHIPS:
         const idGame = await mainController.addShips(userId, parsedDataMessage as WebSocketPayload<AddShips>);
 
-        if (idGame) {
-          const isStarted = await startGame(idGame);
+        const isStarted = await startGame(idGame);
 
-          if (isStarted) {
-            const enemyIdPlayer = findEnemyIdPlayer(idGame, parsedDataMessage.data.indexPlayer);
+        if (isStarted) {
+          const enemyIdPlayer = findEnemyIdPlayer(idGame, parsedDataMessage.data.indexPlayer);
 
-            if (enemyIdPlayer) {
-              await notifyPlayersOfTurn(idGame, enemyIdPlayer);
-            }
+          if (enemyIdPlayer) {
+            await notifyPlayersOfTurn(idGame, enemyIdPlayer);
           }
         }
         break;

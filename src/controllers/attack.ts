@@ -13,11 +13,11 @@ export const attack = async (dataMessage: WebSocketPayload<Attack>) => {
   const { indexPlayer, gameId } = dataMessage.data;
 
   let result = await mainController.attack(dataMessage as WebSocketPayload<Attack>);
-  const attackResponse = transformResponseToJSON(result);
+  const response = transformResponseToJSON(result);
 
-  await attackAnswer(gameId, attackResponse);
+  await attackAnswer(gameId, response);
 
-  if (result.data.status === SHIP_ACTION_TYPES.KILLED) {
+  if (result.data.status === SHIP_ACTION_TYPES.KILL) {
     const isWinner = checkWinner(gameId);
     if (isWinner) {
       await finishGame(gameId, indexPlayer);
@@ -30,7 +30,5 @@ export const attack = async (dataMessage: WebSocketPayload<Attack>) => {
 
   const nextTurnPlayerId = result.data.status === SHIP_ACTION_TYPES.MISS ? enemyId : indexPlayer;
 
-  if (nextTurnPlayerId) {
-    await notifyPlayersOfTurn(gameId, nextTurnPlayerId);
-  }
+  await notifyPlayersOfTurn(gameId, nextTurnPlayerId);
 };

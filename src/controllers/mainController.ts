@@ -56,20 +56,13 @@ export class MainController {
           isWinner: false,
           ships: [],
         },
-      ],
-    };
-
-    const otherUsers = USERS.filter((user: UserWithId) => user.id !== userId);
-    if (otherUsers.length > 0) {
-      const firstOtherUser = otherUsers[0];
-      if (firstOtherUser !== undefined) {
-        newGame.players.push({
-          idPlayer: firstOtherUser.id,
+        {
+          idPlayer: USERS.filter((user: UserWithId) => user.id !== userId)[0]?.id!,
           isWinner: false,
           ships: [],
-        });
-      }
-    }
+        },
+      ],
+    };
 
     GAMES.push(newGame);
 
@@ -113,7 +106,7 @@ export class MainController {
       if (hitShip) {
         const leftShipPositions = hitShip.positions.filter((position) => position.x !== x || position.y !== y);
         hitShip.positions = leftShipPositions;
-        result = leftShipPositions.length === 0 ? SHIP_ACTION_TYPES.KILLED : SHIP_ACTION_TYPES.SHOT;
+        result = leftShipPositions.length === 0 ? SHIP_ACTION_TYPES.KILL : SHIP_ACTION_TYPES.SHOT;
       } else {
         result = SHIP_ACTION_TYPES.MISS;
       }

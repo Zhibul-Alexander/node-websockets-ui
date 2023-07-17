@@ -39,17 +39,12 @@ export const updateWinners = (winnerId: number) => {
   }
 };
 
-export const findEnemyIdPlayer = (gameId: number, currentPlayerIndex: number) => {
-  const game = GAMES.find((game) => game.idGame === gameId);
-  if (!game) {
-    return;
-  }
+export const findEnemyIdPlayer = (idGame: number, currentPlayerIndex: number) => {
+  const game = GAMES.find((game) => game.idGame === idGame)!;
 
-  const enemyPlayer = game.players.find((player) => player.idPlayer !== currentPlayerIndex);
+  const enemyPlayer = game.players.find((player) => player.idPlayer !== currentPlayerIndex)!;
 
-  if (enemyPlayer) {
-    return enemyPlayer.idPlayer;
-  }
+  return enemyPlayer.idPlayer!;
 };
 
 export const checkWinner = (gameId: number) => {
