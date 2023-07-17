@@ -1,4 +1,4 @@
-import { mainController } from '../index.js';
+import { mainController } from '../handler.js';
 import { notifyPlayersOfTurn } from './notifyPlayersOfTurn.js';
 import { attackAnswer } from './attackAnswer.js';
 import { finishGame } from './finishGame.js';

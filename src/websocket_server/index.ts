@@ -1,11 +1,11 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import 'dotenv/config';
 
-import { handler } from '../index.js';
+import { handler } from '../handler.js';
 
 import { WS_PLAYERS } from '../store/index.js';
 
-const PORT = Number(process.env.WEB_SOCKET_PORT) || 4000;
+const PORT = Number(process.env.WEB_SOCKET_PORT) || 3000;
 let amountOfId: number = 0;
 
 export const wss = new WebSocketServer({ port: PORT });

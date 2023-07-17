@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "npx tsc",
-    "start:dev": "npx nodemon",
+    "start:dev": "nodemon --exec ts-node src/index.ts",
     "start:prod": "npx tsc && node build/index"
   },
   "author": "Alexander Zhibul",
